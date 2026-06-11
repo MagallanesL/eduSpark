@@ -1,21 +1,27 @@
-# Edu-Spark versiones demo
+# Edu-Spark
 
-Este repo contiene dos versiones independientes para mostrar la evolución del proyecto.
+Versión gamificada de Edu-Spark lista para desplegar como sitio estático.
 
-- `version-vieja/`: versión tomada del último commit estable del repo original.
-- `version-nueva/`: versión visual gamificada actual, con Sparky, misiones, progreso, recompensas y assets nuevos.
-
-## Cómo abrirlas
+## Ejecutar localmente
 
 Desde esta carpeta:
 
 ```powershell
-.\iniciar-versiones.ps1
+python -m http.server 4181
 ```
 
-Luego abrir:
+Abrir:
 
-- Versión vieja: http://127.0.0.1:4180/index.html
-- Versión nueva: http://127.0.0.1:4181/index.html
+```text
+http://127.0.0.1:4181/index.html
+```
 
-Los servidores son locales y solo sirven los archivos estáticos de cada carpeta.
+## Deploy en Vercel
+
+El proyecto está en la raíz del repo, por lo que en Vercel se puede usar la configuración por defecto para sitio estático:
+
+- Framework Preset: `Other`
+- Build Command: vacío
+- Output Directory: `.`
+
+No hace falta configurar `Root Directory`.

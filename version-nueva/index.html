@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edu-Spark | Juego educativo </title>
+    <meta
+      name="description"
+      content="Edu-Spark es una experiencia educativa interactiva con desafíos de lógica, matemática y pistas visuales para jugar y aprender en equipo."
+    />
+    <meta name="theme-color" content="#061224" />
+    <meta
+      property="og:title"
+      content="Edu-Spark | Juego educativo de lógica y matemática"
+    />
+    <meta
+      property="og:description"
+      content="Desafíos en equipo con misiones, pistas visuales e inteligencia artificial para aprender jugando."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="src/assets/edu-spark1.0.png" />
+    <meta property="og:locale" content="es_AR" />
+    <link rel="icon" type="image/png" href="src/assets/edu-spark1.0.png" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#primaryContent">Saltar al contenido principal</a>
+    <div class="screen-noise" aria-hidden="true"></div>
+    <div id="gameAlert" class="game-alert hidden" aria-live="polite" aria-atomic="true">
+      <div id="gameAlertCard" class="game-alert-card">
+        <span id="gameAlertEmoji" class="game-alert-emoji" aria-hidden="true">🎉</span>
+        <div class="game-alert-copy">
+          <strong id="gameAlertTitle">Respuesta correcta</strong>
+          <p id="gameAlertText">Muy bien. Se abre el siguiente desafio.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-shell">
+      <div class="shell-frame">
+        <div class="shell-topbar" aria-hidden="true">
+          <span class="shell-dot shell-dot-danger"></span>
+          <span class="shell-dot shell-dot-warn"></span>
+          <span class="shell-dot shell-dot-ok"></span>
+          <span class="shell-title">EDU-SPARK://LEARNING_CHALLENGE</span>
+        </div>
+
+
+        
+        <div class="app" id="primaryContent">
+          <header class="hero">
+            <div class="hero-grid">
+              <div class="hero-copy-block">
+                <p class="hero-kicker">Gaming and Learning</p>
+                <h1 class="hero-title typewriter" data-text="EDU-SPARK">
+                  EDU-SPARK
+                </h1>
+                <p class="hero-lead">
+                  Recuper&aacute; las 5 chispas del conocimiento.
+                </p>
+                <p class="sparky-message">
+                  "Hola, soy Sparky. Necesito tu ayuda para recuperar las 5 chispas del conocimiento."
+                </p>
+                <div class="spark-track" aria-label="Chispas de la misi&oacute;n">
+                  <spark-badge reward="spark-observation" label="Chispa de Observaci&oacute;n"></spark-badge>
+                  <spark-badge reward="spark-logic" label="Chispa de L&oacute;gica"></spark-badge>
+                  <spark-badge reward="spark-math" label="Chispa Matem&aacute;tica"></spark-badge>
+                  <spark-badge reward="spark-creativity" label="Chispa de Creatividad"></spark-badge>
+                  <spark-badge reward="spark-knowledge" label="Chispa del Conocimiento"></spark-badge>
+                </div>
+              </div>
+
+              <aside class="sparky-guide" aria-label="Sparky, gu&iacute;a de la misi&oacute;n">
+                <div class="sparky-orbit" aria-hidden="true"></div>
+                <sparky-character mood="default"></sparky-character>
+                <sparky-dialog
+                  mood="happy"
+                  message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."
+                ></sparky-dialog>
+              </aside>
+            </div>
+
+            <div class="mission-panel">
+              <div class="team-entry">
+                <label for="teamName" class="team-label">Nombre del equipo</label>
+                <p id="teamPrompt" class="team-helper">
+                  Creen su equipo para abrir el portal.
+                </p>
+                <input
+                  type="text"
+                  id="teamName"
+                  maxlength="40"
+                  autocomplete="off"
+                  aria-describedby="teamPrompt teamFeedback"
+                />
+                <p id="teamFeedback" class="team-feedback hidden" aria-live="polite">
+                  Necesitan un nombre para comenzar la misi&oacute;n.
+                </p>
+              </div>
+
+              <div class="mission-actions">
+                <div id="lastRunBox" class="last-run-box hidden">
+                  <span class="last-run-label">&Uacute;ltima partida registrada</span>
+                  <strong id="lastRunTime"></strong>
+                  <span id="lastRunMeta" class="last-run-meta"></span>
+                </div>
+
+                <button id="startBtn" class="btn primary hero-start-btn">Iniciar misi&oacute;n</button>
+                <p class="hero-cta-note">
+                  Sparky te acompa&ntilde;a con pistas breves. La respuesta la descubre tu equipo.
+                </p>
+              </div>
+            </div>
+
+            <section class="hero-dashboard" aria-label="Estado general del juego">
+              <div class="topbar">
+                <div class="status-panel timer-panel">
+                  <span class="panel-label">Tiempo</span>
+                  <span class="panel-value" id="timer">00:00</span>
+                </div>
+                <div class="status-panel penalty-panel">
+                  <span class="panel-label">Misi&oacute;n</span>
+                  <span class="panel-copy" id="sparkProgressText">Chispas recuperadas: 0/5</span>
+                  <span class="spark-progress-icons" id="sparkProgressIcons" aria-label="Progreso de chispas">
+                    ⚪⚪⚪⚪⚪
+                  </span>
+                </div>
+                <div class="status-panel hint-panel">
+                  <span class="panel-label">Pistas</span>
+                  <span class="panel-copy"
+                    >Sparky ayuda a pensar <strong id="hintCounter" class="hidden">4/4</strong></span
+                  >
+                </div>
+                <div class="status-panel control-panel">
+                  <span class="panel-label">Control</span>
+                  <button id="pauseBtn" class="btn btn-secondary" disabled>Pausar</button>
+                  <button id="soundToggleBtn" class="btn btn-secondary" type="button">
+                    Sonido: OFF
+                  </button>
+                  <button id="resetDemoBtn" class="btn btn-secondary" type="button">
+                    Reiniciar demo
+                  </button>
+                  <span id="pauseStatus" class="panel-copy">Listo para jugar</span>
+                </div>
+              </div>
+
+            </section>
+
+          </header>
+          <sparky-dialog
+            id="sparkyGlobalDialog"
+            class="sparky-global-dialog hidden"
+            state="start"
+            message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."
+          ></sparky-dialog>
+          <div
+            id="rewardModal"
+            class="reward-modal hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="rewardTitle"
+          >
+            <div class="reward-card">
+              <sparky-dialog
+                class="reward-sparky-dialog"
+                state="complete"
+                mood="celebration"
+                message="&iexcl;Chispa recuperada!"
+              ></sparky-dialog>
+              <div class="reward-spark-stage" aria-hidden="true">
+                <spark-badge
+                  id="rewardSparkBadge"
+                  class="reward-spark-badge"
+                  reward="spark-observation"
+                  label="Chispa recuperada"
+                ></spark-badge>
+              </div>
+              <p class="reward-kicker">&iexcl;Chispa recuperada!</p>
+              <h2 id="rewardTitle">Chispa de Observaci&oacute;n</h2>
+              <p id="rewardMessage">Tu equipo acaba de recuperar una chispa del conocimiento.</p>
+              <button id="nextMissionBtn" class="btn primary" type="button">Siguiente misi&oacute;n</button>
+            </div>
+          </div>
+
+          <main id="game" class="hidden" tabindex="-1">
+            <section id="introBox" class="card intro-card reveal-card">
+              <div class="card-head">
+                <span class="card-tag">MISION</span>
+                <span class="card-status">ONLINE</span>
+              </div>
+              <h2>Misi&oacute;n iniciada</h2>
+              <p>Eleg&iacute; un camino. Sparky acompa&ntilde;a.</p>
+              <div class="rules-box">
+                <p class="rules-title">&gt; Reglas de misi&oacute;n:</p>
+                <ul class="rules-list">
+                  <li>Lean el reto.</li>
+                  <li>Piensen en equipo.</li>
+                  <li>Usen pistas solo si se traban.</li>
+                  <li>Recuperen chispas.</li>
+                </ul>
+              </div>
+              
+              <div class="boot-log" id="bootLog">
+                <p class="boot-line">&gt; Preparando misiones...</p>
+                <p class="boot-line">&gt; Activando pistas visuales...</p>
+                <p class="boot-line">&gt; Esperando decisi&oacute;n del equipo...</p>
+              </div>
+              <div class="intro-actions">
+                <div class="mode-heading">
+                  <span>Eleg&iacute; tu camino</span>
+                  <strong>&iquest;Qu&eacute; sendero quieren recorrer en esta aventura?</strong>
+                </div>
+                <button id="openMathChallengeBtn" class="mode-button mode-button-primary" type="button">
+                  <span class="mode-art" aria-hidden="true">
+                    <img src="src/assets/sparky/matematicas.png" alt="" loading="lazy" />
+                  </span>
+                  <span class="mode-label">Sendero del c&aacute;lculo</span>
+                  <strong>Desaf&iacute;o matem&aacute;tico</strong>
+                  <span>N&uacute;meros, c&aacute;mara y pistas.</span>
+                </button>
+                <button id="beginBtn" class="mode-button mode-button-secondary" type="button">
+                  <span class="mode-art" aria-hidden="true">
+                    <img src="src/assets/sparky/logica.png" alt="" loading="lazy" />
+                  </span>
+                  <span class="mode-label">Sendero del ingenio</span>
+                  <strong>Desaf&iacute;o l&oacute;gico</strong>
+                  <span>Acertijos para avanzar.</span>
+                </button>
+                <button class="mode-button mode-button-disabled" type="button" disabled>
+                  <span class="mode-art" aria-hidden="true">
+                    <img src="src/assets/sparky/lengua.png" alt="" loading="lazy" />
+                  </span>
+                  <span class="mode-label">Sendero en construcci&oacute;n</span>
+                  <strong>Desaf&iacute;o de lengua</strong>
+                  <span>Pr&oacute;ximamente: relatos, comprensi&oacute;n y pistas narrativas.</span>
+                </button>
+              </div>
+            </section>
+
+            <section
+              id="mathChallenge"
+              class="card math-card hidden reveal-card"
+              data-level="MATH"
+            >
+              <div class="card-head">
+                <span class="card-tag">DESAFIO_MATEMATICO</span>
+                <span class="card-status" id="mathStatus">PILOTO</span>
+              </div>
+              <div id="mathQuestionHost"></div>
+              <div id="cameraPanel" class="camera-panel hidden" aria-live="polite">
+                <div class="camera-head">
+                  <strong>C&aacute;mara de pistas</strong>
+                  <div class="camera-actions">
+                    <button id="switchCameraBtn" class="btn btn-secondary" type="button" disabled>
+                      Cambiar c&aacute;mara
+                    </button>
+                    <button id="readImageBtn" class="btn primary" type="button" disabled>
+                      Analizar imagen
+                    </button>
+                    <button id="retryImageBtn" class="btn btn-secondary" type="button" disabled>
+                      Intentar con otra imagen
+                    </button>
+                    <button id="closeCameraBtn" class="btn btn-secondary" type="button">
+                      Cerrar c&aacute;mara
+                    </button>
+                  </div>
+                </div>
+                <sparky-dialog
+                  id="cameraSparkyDialog"
+                  class="camera-sparky-dialog"
+                  state="hint"
+                  message="Encontr&eacute; una pista, pero la respuesta la descubr&iacute;s vos."
+                ></sparky-dialog>
+                <div id="webcamContainer" class="webcam-container"></div>
+                <div id="cameraHintCard" class="camera-hint-card hidden" aria-live="polite">
+                  <div class="camera-hint-card-head">
+                    <span class="camera-hint-icon" aria-hidden="true">&#128161;</span>
+                    <strong id="cameraHintTitle">Pista encontrada</strong>
+                  </div>
+                  <p id="cameraHintText" class="camera-hint-text">
+                    La camara puede darte una orientacion de procedimiento, no la respuesta final.
+                  </p>
+                  <div class="camera-hint-actions">
+                    <button id="closeHintCardBtn" class="btn btn-secondary" type="button">
+                      Entendido
+                    </button>
+                  </div>
+                </div>
+                <p id="predictionResult" class="prediction-result">
+                  Mostr&aacute; una imagen de pista frente a la c&aacute;mara.
+                </p>
+              </div>
+              <p id="mathFeedback" class="feedback"></p>
+            </section>
+
+            <section
+              id="level1"
+              class="card level active hidden reveal-card"
+              data-level="01"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_01</span>
+                <span class="card-status">ACTIVE</span>
+              </div>
+              <h2>Misi&oacute;n 1 - Código numérico</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>Un código de 3 cifras cumple:</p>
+              <ul>
+                <li>La suma de sus dígitos es 12</li>
+                <li>El primer número es el doble del tercero</li>
+                <li>El segundo número es 3 menos que el primero</li>
+              </ul>
+
+              <label for="answer1">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer1" maxlength="3" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(1)">Enviar respuesta</button>
+                <button
+                  id="hintBtn1"
+                  class="btn btn-secondary"
+                  onclick="requestHint(1)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox1" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>633</li>
+                  <li>623</li>
+                </ul>
+              </div>
+              <p id="feedback1" class="feedback"></p>
+            </section>
+
+            <section
+              id="level2"
+              class="card level locked hidden reveal-card"
+              data-level="02"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_02</span>
+                <span class="card-status">LOCKED</span>
+              </div>
+              <h2>Misi&oacute;n 2 - Llaves y puertas</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>Cuatro llaves (A, B, C, D) abren cuatro puertas.</p>
+              <ul>
+                <li>A no abre la puerta 1</li>
+                <li>B abre una puerta menor que C</li>
+                <li>D abre la puerta 4</li>
+                <li>C no abre la puerta 2</li>
+              </ul>
+              <p>
+                Escribí el resultado como un código de 4 cifras en orden de puerta
+                1 a 4.
+              </p>
+              <p class="hint">Usar: A=1, B=2, C=3, D=4</p>
+
+              <label for="answer2">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer2" maxlength="4" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(2)">Enviar respuesta</button>
+                <button
+                  id="hintBtn2"
+                  class="btn btn-secondary"
+                  onclick="requestHint(2)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox2" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>2134</li>
+                  <li>2314</li>
+                </ul>
+              </div>
+              <p id="feedback2" class="feedback"></p>
+            </section>
+
+            <section
+              id="level3"
+              class="card level locked hidden reveal-card"
+              data-level="03"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_03</span>
+                <span class="card-status">LOCKED</span>
+              </div>
+              <h2>Misi&oacute;n 3 - Sistemas</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>Tres sistemas dicen:</p>
+              <ul>
+                <li>A: "B está fallando"</li>
+                <li>B: "C está fallando"</li>
+                <li>C: "A y B están en el mismo estado"</li>
+              </ul>
+              <p>Solo uno dice la verdad.</p>
+              <p>¿Qué sistema funciona correctamente?</p>
+              <p class="hint">Responder con: 1 para A, 2 para B, 3 para C</p>
+
+              <label for="answer3">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer3" maxlength="1" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(3)">Enviar respuesta</button>
+                <button
+                  id="hintBtn3"
+                  class="btn btn-secondary"
+                  onclick="requestHint(3)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox3" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>2</li>
+                  <li>3</li>
+                </ul>
+              </div>
+              <p id="feedback3" class="feedback"></p>
+            </section>
+
+            <section
+              id="level4"
+              class="card level locked hidden reveal-card"
+              data-level="04"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_04</span>
+                <span class="card-status">LOCKED</span>
+              </div>
+              <h2>Misi&oacute;n 4 - Cajas</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>Hay tres cajas con estas etiquetas:</p>
+              <ul>
+                <li>"Código correcto"</li>
+                <li>"Código incorrecto"</li>
+                <li>"Código mixto"</li>
+              </ul>
+              <p>Todas las etiquetas son falsas.</p>
+              <p>Podés abrir solo una caja.</p>
+              <p>¿Dónde está el código correcto?</p>
+              <p class="hint">Responder con: 1, 2 o 3</p>
+
+              <label for="answer4">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer4" maxlength="1" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(4)">Enviar respuesta</button>
+                <button
+                  id="hintBtn4"
+                  class="btn btn-secondary"
+                  onclick="requestHint(4)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox4" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>3</li>
+                  <li>1</li>
+                </ul>
+              </div>
+              <p id="feedback4" class="feedback"></p>
+            </section>
+
+            <section
+              id="level5"
+              class="card level locked hidden reveal-card"
+              data-level="05"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_05</span>
+                <span class="card-status">LOCKED</span>
+              </div>
+              <h2>Misi&oacute;n 5 - Secuencia inestable</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>El sistema registró esta secuencia antes del bloqueo:</p>
+              <p class="sequence">2 - 6 - 7 - 21 - 22 - 66 - ?</p>
+              <p>No todos los pasos siguen la misma operación.</p>
+              <p>Tampoco cambia de regla al azar.</p>
+              <p class="hint">
+                La lógica alterna entre dos comportamientos distintos.
+              </p>
+
+              <label for="answer5">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer5" maxlength="2" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(5)">Enviar respuesta</button>
+                <button
+                  id="hintBtn5"
+                  class="btn btn-secondary"
+                  onclick="requestHint(5)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox5" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>67</li>
+                  <li>68</li>
+                </ul>
+              </div>
+              <p id="feedback5" class="feedback"></p>
+            </section>
+
+            <section
+              id="level6"
+              class="card level locked hidden reveal-card"
+              data-level="06"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_06</span>
+                <span class="card-status">LOCKED</span>
+              </div>
+              <h2>Misi&oacute;n 6 - Ruptura de patrón</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>
+                Uno de estos números parece pertenecer al conjunto, pero en
+                realidad rompe la lógica dominante:
+              </p>
+              <p class="sequence">3 - 5 - 9 - 15 - 21 - 25 - 27</p>
+              <p>No alcanza con mirar si son pares, impares o crecientes.</p>
+              <p class="hint">
+                La mayoría comparte una propiedad exacta. Uno no.
+              </p>
+
+              <label for="answer6">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer6" maxlength="2" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(6)">Enviar respuesta</button>
+                <button
+                  id="hintBtn6"
+                  class="btn btn-secondary"
+                  onclick="requestHint(6)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox6" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>25</li>
+                  <li>27</li>
+                </ul>
+              </div>
+              <p id="feedback6" class="feedback"></p>
+            </section>
+
+            <section
+              id="level7"
+              class="card level locked hidden reveal-card"
+              data-level="07"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_07</span>
+                <span class="card-status">LOCKED</span>
+              </div>
+              <h2>Misi&oacute;n 7 - Inferencia mínima</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>Suponé que el sistema solo garantiza estas dos afirmaciones:</p>
+              <ul>
+                <li>Todos los X son Y</li>
+                <li>Algunos Y son Z</li>
+              </ul>
+              <p>
+                Elegí la única conclusión que no agrega información inventada.
+              </p>
+              <ul>
+                <li>A) Todos los Z son X</li>
+                <li>B) Algunos X son Z</li>
+                <li>C) Ningún X es Z</li>
+                <li>D) No se puede asegurar relación directa</li>
+              </ul>
+
+              <label for="answer7">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer7" maxlength="1" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(7)">Enviar respuesta</button>
+                <button
+                  id="hintBtn7"
+                  class="btn btn-secondary"
+                  onclick="requestHint(7)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox7" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>D</li>
+                  <li>B</li>
+                </ul>
+              </div>
+              <p id="feedback7" class="feedback"></p>
+            </section>
+
+            <section
+              id="level8"
+              class="card level locked hidden reveal-card"
+              data-level="08"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_08</span>
+                <span class="card-status">LOCKED</span>
+              </div>
+              <h2>Misi&oacute;n 8 - Lectura de sistema</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>El sistema almacena este valor en binario:</p>
+              <p class="sequence">1011</p>
+              <p>Traducilo a decimal sin leerlo como “mil once”.</p>
+              <p class="hint">
+                Cada posición vale distinto, aunque solo haya 1 y 0.
+              </p>
+
+              <label for="answer8">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer8" maxlength="2" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(8)">Enviar respuesta</button>
+                <button
+                  id="hintBtn8"
+                  class="btn btn-secondary"
+                  onclick="requestHint(8)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox8" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>11</li>
+                  <li>13</li>
+                </ul>
+              </div>
+              <p id="feedback8" class="feedback"></p>
+            </section>
+
+            <section
+              id="level9"
+              class="card level locked hidden reveal-card"
+              data-level="09"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_09</span>
+                <span class="card-status">LOCKED</span>
+              </div>
+              <h2>Misi&oacute;n 9 - Geometría oculta</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>Un cubo fue pintado completamente por fuera.</p>
+              <p>Después se dividió en 27 cubitos iguales.</p>
+              <p>No todos los cubitos recibieron la misma cantidad de pintura.</p>
+              <p>¿Cuántos tienen exactamente 2 caras pintadas?</p>
+              <p class="hint">
+                No mires el centro. Mirá los bordes, pero no las esquinas.
+              </p>
+
+              <label for="answer9">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer9" maxlength="2" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(9)">Enviar respuesta</button>
+                <button
+                  id="hintBtn9"
+                  class="btn btn-secondary"
+                  onclick="requestHint(9)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox9" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>12</li>
+                  <li>8</li>
+                </ul>
+              </div>
+              <p id="feedback9" class="feedback"></p>
+            </section>
+
+            <section
+              id="level10"
+              class="card level locked hidden reveal-card"
+              data-level="10"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_10</span>
+                <span class="card-status">LOCKED</span>
+              </div>
+              <h2>Misi&oacute;n 10 - Observación indirecta</h2>
+              <sparky-dialog class="mission-sparky-dialog" state="start" message="Esta misi&oacute;n necesita observaci&oacute;n. Vamos paso a paso."></sparky-dialog>
+              <p>
+                Tenés 3 interruptores y una habitación cerrada con 1 lámpara.
+              </p>
+              <p>Solo podés entrar una vez.</p>
+              <p>No basta con mirar si la lámpara está encendida o apagada.</p>
+              <p>
+                ¿Cuántos interruptores necesitás manipular antes de entrar para
+                identificar el correcto con certeza?
+              </p>
+              <p class="hint">
+                La lámpara puede dejar una evidencia incluso apagada.
+              </p>
+
+              <label for="answer10">Eleg&iacute; tu respuesta:</label>
+              <input type="text" id="answer10" maxlength="1" autocomplete="off" />
+              <div class="action-row">
+                <button class="btn" onclick="checkAnswer(10)">Enviar respuesta</button>
+                <button
+                  id="hintBtn10"
+                  class="btn btn-secondary"
+                  onclick="requestHint(10)"
+                >
+                  Pista de Sparky (+30:00)
+                </button>
+              </div>
+              <div id="hintBox10" class="hint-box hidden">
+                <p class="hint-box-title">
+                  &gt; Pens&aacute; la pista. Una opci&oacute;n es correcta:
+                </p>
+                <ul class="hint-options">
+                  <li>2</li>
+                  <li>3</li>
+                </ul>
+              </div>
+              <p id="feedback10" class="feedback"></p>
+            </section>
+
+            <section
+              id="finalScreen"
+              class="card final-card hidden reveal-card"
+            >
+              <div class="card-head">
+                <span class="card-tag">MISION_COMPLETA</span>
+                <span class="card-status">5/5</span>
+              </div>
+              <sparky-dialog
+                class="final-sparky-dialog"
+                state="complete"
+                mood="celebration"
+                message="&iexcl;Una chispa m&aacute;s recuperada!"
+              ></sparky-dialog>
+              <h2>&iexcl;Misi&oacute;n completada!</h2>
+              <p>Recuperaste las 5 chispas del conocimiento.</p>
+              <div class="final-spark-row" aria-label="5 chispas recuperadas">
+                <spark-badge reward="spark-observation" label="Chispa de Observaci&oacute;n"></spark-badge>
+                <spark-badge reward="spark-logic" label="Chispa de L&oacute;gica"></spark-badge>
+                <spark-badge reward="spark-math" label="Chispa Matem&aacute;tica"></spark-badge>
+                <spark-badge reward="spark-creativity" label="Chispa de Creatividad"></spark-badge>
+                <spark-badge reward="spark-knowledge" label="Chispa del Conocimiento"></spark-badge>
+              </div>
+              <p>Tiempo final: <strong id="finalTime"></strong></p>
+              <button class="btn primary" onclick="restartGame()">
+                Jugar de nuevo
+              </button>
+            </section>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script type="module" src="src/components/visualAssets.js"></script>
+    <script type="module" src="math-challenge.js"></script>
+    <script src="logica.js"></script>
+  </body>
+</html>

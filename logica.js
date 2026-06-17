@@ -38,6 +38,7 @@ let started = false;
 let hintsUsedCount = 0;
 let refreshPenaltyActive = false;
 let solvedLevels = [];
+let recoveredSparkRewards = [];
 let briefingOpen = false;
 let teamName = "";
 let isPaused = false;
@@ -196,7 +197,7 @@ function checkAnswer(level) {
     input.value = answers[level];
     input.disabled = true;
     solvedLevels = Array.from(new Set([...solvedLevels, level])).sort((a, b) => a - b);
-    updateSparkProgress();
+    registerRecoveredSpark(getSparkReward(level).reward);
 
     const hintButton = document.getElementById(`hintBtn${level}`);
     if (hintButton) {
@@ -279,6 +280,16 @@ function getSparkReward(level) {
   return knowledgeSparks[rewardIndex] || knowledgeSparks[knowledgeSparks.length - 1];
 }
 
+function registerRecoveredSpark(reward) {
+  if (!reward) return;
+
+  recoveredSparkRewards = Array.from(new Set([...recoveredSparkRewards, reward]));
+  updateSparkProgress();
+  saveGameState();
+}
+
+window.registerRecoveredSpark = registerRecoveredSpark;
+
 function showRewardModal(levelOrConfig, onNext = () => {}) {
   if (!rewardModal || !rewardTitle || !rewardMessage || !rewardSparkBadge || !nextMissionBtn) {
     onNext();
@@ -302,13 +313,21 @@ function showRewardModal(levelOrConfig, onNext = () => {}) {
   rewardSparkBadge.setAttribute("label", reward.name);
   rewardMessage.textContent = reward.message || rewardMessage.textContent;
   if (typeof levelOrConfig !== "number") {
-    nextMissionBtn.textContent = reward.buttonLabel;
+    nextMissionBtn.textContent = reward.buttonLabel === "Ver resultado final"
+      ? "Ver resultado final"
+      : "Siguiente misi\u00F3n";
   }
   nextMissionBtn.textContent = level >= answersCount() ? "Ver resultado final" : "Siguiente misión";
 
   if (typeof levelOrConfig !== "number") {
     nextMissionBtn.textContent = reward.buttonLabel;
   }
+
+  nextMissionBtn.textContent = typeof levelOrConfig === "number"
+    ? level >= answersCount() ? "Ver resultado final" : "Siguiente misi\u00F3n"
+    : reward.buttonLabel === "Ver resultado final"
+      ? "Ver resultado final"
+      : "Siguiente misi\u00F3n";
 
   rewardModal.classList.remove("hidden", "reward-modal-pop");
   void rewardModal.offsetWidth;
@@ -591,11 +610,10 @@ function updateHintUI() {
 function updateSparkProgress() {
   if (!sparkProgressText || !sparkProgressIcons) return;
 
-  const solvedCount = solvedLevels.length;
-  const sparksRecovered = Math.min(totalKnowledgeSparks, solvedCount);
+  const sparksRecovered = Math.min(totalKnowledgeSparks, recoveredSparkRewards.length);
   const icons = Array.from({ length: totalKnowledgeSparks }, (_, index) => {
     const spark = knowledgeSparks[index];
-    const recovered = index < sparksRecovered;
+    const recovered = recoveredSparkRewards.includes(spark.reward);
 
     return `<span class="spark-progress-dot ${recovered ? "recovered" : ""}" aria-hidden="true">${
       recovered ? "⚡" : "⚪"
@@ -641,6 +659,7 @@ function saveGameState() {
     secondsElapsed,
     refreshPenaltyActive,
     solvedLevels,
+    recoveredSparkRewards,
     errorCount,
     usedHints,
     hintsUsedCount,
@@ -672,6 +691,11 @@ function restoreGameState() {
     secondsElapsed = Number(state.secondsElapsed) || 0;
     refreshPenaltyActive = Boolean(state.refreshPenaltyActive);
     solvedLevels = Array.isArray(state.solvedLevels) ? state.solvedLevels.map(Number) : [];
+    recoveredSparkRewards = Array.isArray(state.recoveredSparkRewards)
+      ? state.recoveredSparkRewards
+      : solvedLevels
+          .map((level) => getSparkReward(level).reward)
+          .filter(Boolean);
     hintsUsedCount = Number(state.hintsUsedCount) || 0;
     soundEnabled = Boolean(state.soundEnabled);
     if (window.eduSparkSound) {

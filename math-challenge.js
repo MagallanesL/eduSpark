@@ -167,6 +167,9 @@ function checkMathAnswer(answer) {
     mathFeedback.textContent = getPositiveFeedback();
     mathFeedback.className = "feedback ok math-reward";
     showSparkyState("correct");
+    if (typeof window.registerRecoveredSpark === "function") {
+      window.registerRecoveredSpark("spark-math");
+    }
     if (typeof window.showRewardModal !== "function") showSharedAlert({
       mood: "success",
       emoji: "⚡",

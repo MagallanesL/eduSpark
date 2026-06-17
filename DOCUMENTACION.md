@@ -65,6 +65,65 @@
 ### Variables de entorno / configuracion
 - No aplica.
 
+## Ajuste de feedback y texto del modal en Lengua
+
+### Que se modifico
+- El modal de recompensa de `Lengua y Literatura` ahora usa el `feedback.correct` de la pregunta como mensaje principal.
+- Se reforzo la normalizacion del texto del boton compartido para que muestre `Siguiente misión` y no variantes rotas por encoding.
+
+### Archivos afectados
+- `language-challenge.js`
+- `logica.js`
+- `DOCUMENTACION.md`
+
+### Como probarlo
+- Abrir `index.html`.
+- Entrar a `Lengua y Literatura`.
+- Responder correctamente una pregunta.
+- Verificar que el modal muestre el feedback correcto de esa pregunta.
+- Verificar que el boton del modal diga `Siguiente misión`.
+
+### Riesgos o supuestos
+- El fallback del alert chico se mantiene solo como respaldo; el flujo principal sigue siendo el modal grande de recompensa.
+
+### Endpoints
+- No aplica.
+
+### Variables de entorno / configuracion
+- No aplica.
+
+## Progreso global de chispas entre modulos
+
+### Que se modifico
+- El progreso superior de chispas dejo de depender solo de `solvedLevels` de LÃ³gica.
+- Se agrego un registro compartido de chispas recuperadas para que LÃ³gica, MatemÃ¡tica y Lengua sumen sobre el mismo contador global.
+- MatemÃ¡tica ahora registra `spark-math` al acertar.
+- Lengua y Literatura ahora registra `spark-knowledge` al acertar.
+- Se mantiene `solvedLevels` solo para el desbloqueo interno del modulo de LÃ³gica.
+
+### Archivos afectados
+- `logica.js`
+- `math-challenge.js`
+- `language-challenge.js`
+- `DOCUMENTACION.md`
+
+### Como probarlo
+- Abrir `index.html`.
+- Resolver un acierto en `Desafio matematico` y verificar que se actualice la barra superior.
+- Resolver un acierto en `Lengua y Literatura` y verificar que tambien se actualice.
+- Resolver un acierto en `Desafio lÃ³gico` y confirmar que siga marcando progreso como antes.
+- Recargar la pagina y verificar que las chispas recuperadas se mantengan.
+
+### Riesgos o supuestos
+- El contador superior ahora refleja chispas unicas recuperadas, no simplemente cantidad de respuestas correctas.
+- No se modifico el orden visual de las chispas ni la UI del header.
+
+### Endpoints
+- No aplica.
+
+### Variables de entorno / configuracion
+- No aplica.
+
 ## Reutilizacion del modal de chispa en MatemÃ¡tica y Lengua
 
 ### Que se modifico

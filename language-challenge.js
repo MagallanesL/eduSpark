@@ -67,13 +67,16 @@ function checkAnswer(answer) {
   feedbackNode.textContent = isCorrect ? question.feedback.correct : question.feedback.incorrect;
   feedbackNode.className = `feedback ${isCorrect ? "ok" : "error"}`;
   showSparkyState(isCorrect ? "correct" : "incorrect");
+  if (isCorrect && typeof window.registerRecoveredSpark === "function") {
+    window.registerRecoveredSpark("spark-knowledge");
+  }
   if (!isCorrect || typeof window.showRewardModal !== "function") {
-    showSharedAlert(isCorrect);
+    showSharedAlert(isCorrect, question.feedback.correct);
   }
 
   if (!isCorrect) return;
 
-  openLanguageRewardModal(() => {
+  openLanguageRewardModal(question.feedback.correct, () => {
     currentQuestionIndex += 1;
 
     if (currentQuestionIndex >= languageQuestions.length) {
@@ -121,7 +124,7 @@ function stopMathCamera() {
   }
 }
 
-function openLanguageRewardModal(onNext) {
+function openLanguageRewardModal(message, onNext) {
   if (typeof window.showRewardModal !== "function") {
     onNext();
     return;
@@ -130,13 +133,14 @@ function openLanguageRewardModal(onNext) {
   window.showRewardModal({
     title: "Chispa del Conocimiento",
     reward: "spark-knowledge",
-    message: "Tu equipo acaba de recuperar una chispa del conocimiento.",
+    message: message,
     buttonLabel: currentQuestionIndex >= languageQuestions.length - 1 ? "Ver resultado final" : "Siguiente misiÃ³n"
   }, onNext);
 }
 
-function showSharedAlert(isCorrect) {
+function showSharedAlert(isCorrect, successMessage) {
   if (typeof window.showGameAlert !== "function") return;
+  const successText = successMessage || "Muy bien. Avanzan a la siguiente pregunta.";
 
   window.showGameAlert(isCorrect
     ? { mood: "success", emoji: "⚡", title: "Respuesta correcta", text: "Muy bien. Avanzan a la siguiente pregunta." }

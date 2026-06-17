@@ -279,26 +279,44 @@ function getSparkReward(level) {
   return knowledgeSparks[rewardIndex] || knowledgeSparks[knowledgeSparks.length - 1];
 }
 
-function showRewardModal(level, onNext) {
+function showRewardModal(levelOrConfig, onNext = () => {}) {
   if (!rewardModal || !rewardTitle || !rewardMessage || !rewardSparkBadge || !nextMissionBtn) {
     onNext();
     return;
   }
 
-  const reward = getSparkReward(level);
+  const reward = typeof levelOrConfig === "number"
+    ? getSparkReward(levelOrConfig)
+    : {
+        name: levelOrConfig?.title || "Chispa recuperada",
+        reward: levelOrConfig?.reward || "spark-knowledge",
+        message: levelOrConfig?.message || "Tu equipo acaba de recuperar una chispa del conocimiento.",
+        buttonLabel: levelOrConfig?.buttonLabel || "Siguiente misiÃ³n"
+      };
+  const level = typeof levelOrConfig === "number" ? levelOrConfig : 0;
   pendingRewardNext = onNext;
 
   rewardTitle.textContent = reward.name;
   rewardMessage.textContent = "Tu equipo acaba de recuperar una chispa del conocimiento.";
   rewardSparkBadge.setAttribute("reward", reward.reward);
   rewardSparkBadge.setAttribute("label", reward.name);
+  rewardMessage.textContent = reward.message || rewardMessage.textContent;
+  if (typeof levelOrConfig !== "number") {
+    nextMissionBtn.textContent = reward.buttonLabel;
+  }
   nextMissionBtn.textContent = level >= answersCount() ? "Ver resultado final" : "Siguiente misión";
+
+  if (typeof levelOrConfig !== "number") {
+    nextMissionBtn.textContent = reward.buttonLabel;
+  }
 
   rewardModal.classList.remove("hidden", "reward-modal-pop");
   void rewardModal.offsetWidth;
   rewardModal.classList.add("reward-modal-pop");
   nextMissionBtn.focus();
 }
+
+window.showRewardModal = showRewardModal;
 
 function closeRewardModal() {
   if (rewardModal) {

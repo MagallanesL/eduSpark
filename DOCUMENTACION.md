@@ -28,6 +28,102 @@
 ### Variables de entorno / configuracion
 - No aplica para este cambio.
 
+## Nuevo modulo de Lengua y Literatura
+
+### Que se modifico
+- Se habilito el acceso a `Lengua y Literatura` desde la pantalla de seleccion de senderos.
+- Se agrego una seccion paralela al desafio matematico, reutilizando la misma estructura visual de progreso, opciones, feedback y cierre.
+- Se creo `language-data.js` con 5 preguntas, 4 opciones por pregunta, una unica respuesta correcta y feedback especifico por caso.
+- Se creo `language-challenge.js` para renderizar una pregunta por vez, validar respuestas, mostrar feedback, avanzar y reiniciar el modulo al completarlo.
+- No se uso camara en este modulo y no se modifico la logica existente de Lógica ni Matemática.
+
+### Archivos afectados
+- `index.html`
+- `language-data.js`
+- `language-challenge.js`
+- `DOCUMENTACION.md`
+
+### Como probarlo
+- Abrir `index.html`.
+- Iniciar la mision principal.
+- En la pantalla de caminos, entrar a `Lengua y Literatura`.
+- Verificar que se muestren 5 preguntas en secuencia.
+- Confirmar que cada pregunta tenga 4 opciones.
+- Validar que una respuesta incorrecta muestre feedback y no avance.
+- Validar que una respuesta correcta muestre feedback y avance a la siguiente pregunta.
+- Completar las 5 preguntas y comprobar que aparezca la pantalla de cierre del modulo con opcion de reinicio.
+- Volver a probar `Desafio lógico` y `Desafio matemático` para confirmar que siguen funcionando igual que antes.
+
+### Riesgos o supuestos
+- El modulo de Lengua y Literatura funciona como desafio paralelo, igual que el matematico, y no altera el contador global del juego principal.
+- Se reutilizaron clases visuales ya existentes (`math-progress`, `math-options`, `feedback`) para evitar estilos paralelos.
+- No se realizaron cambios estructurales en `logica.js`; la integracion depende de los hooks globales ya expuestos para alertas y dialogos de Sparky.
+
+### Endpoints
+- No aplica.
+
+### Variables de entorno / configuracion
+- No aplica.
+
+## Reutilizacion del modal de chispa en MatemÃ¡tica y Lengua
+
+### Que se modifico
+- Se reutilizo el mismo `rewardModal` que ya usaba LÃ³gica para mostrar la recompensa visual al acertar en MatemÃ¡tica y Lengua.
+- `logica.js` ahora expone `window.showRewardModal` y admite configuracion por modulo, sin romper el uso previo por nivel.
+- MatemÃ¡tica deja de avanzar automaticamente al acertar y ahora espera el clic en `Siguiente misiÃ³n` dentro del modal.
+- Lengua y Literatura deja de avanzar automaticamente al acertar y ahora espera el mismo modal antes de continuar.
+- Se elimino la solucion provisoria de `shared-alerts.js` porque ya no hacia falta.
+
+### Archivos afectados
+- `index.html`
+- `logica.js`
+- `math-challenge.js`
+- `language-challenge.js`
+- `DOCUMENTACION.md`
+
+### Como probarlo
+- Abrir `index.html`.
+- Entrar a `Desafio matematico` y responder correctamente una pregunta.
+- Verificar que aparezca el modal grande de chispa como en LÃ³gica y que solo avance al presionar `Siguiente misiÃ³n`.
+- Entrar a `Lengua y Literatura` y responder correctamente una pregunta.
+- Verificar el mismo comportamiento.
+- Confirmar que LÃ³gica siga mostrando el mismo modal de siempre.
+
+### Riesgos o supuestos
+- El modal reutiliza los assets de chispas ya existentes: `spark-math` para MatemÃ¡tica y `spark-knowledge` para Lengua.
+- No se modifico la validacion de respuestas; solo el momento en que se produce el avance tras un acierto.
+
+### Endpoints
+- No aplica.
+
+### Variables de entorno / configuracion
+- No aplica.
+
+## Ajuste de alertas entre modulos
+
+### Que se modifico
+- Se agrego `shared-alerts.js` para normalizar el alert de respuesta correcta en MatemÃ¡tica y Lengua.
+- El mensaje visual de acierto ahora replica el de LÃ³gica: `Chispa recuperada` + `Â¡Bien hecho! Recuperaste una chispa.`
+
+### Archivos afectados
+- `index.html`
+- `shared-alerts.js`
+- `DOCUMENTACION.md`
+
+### Como probarlo
+- Abrir `index.html`.
+- Responder correctamente una pregunta en `Desafio lÃ³gico`, `Desafio matemÃ¡tico` y `Lengua y Literatura`.
+- Verificar que en los tres casos aparezca el mismo alert visual de acierto.
+
+### Riesgos o supuestos
+- No se modifico la validacion interna de respuestas; solo se normalizo el payload del alert compartido.
+
+### Endpoints
+- No aplica.
+
+### Variables de entorno / configuracion
+- No aplica.
+
 ## Alertas visuales para aciertos y errores
 
 ### Que se modifico

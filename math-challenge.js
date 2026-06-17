@@ -167,7 +167,7 @@ function checkMathAnswer(answer) {
     mathFeedback.textContent = getPositiveFeedback();
     mathFeedback.className = "feedback ok math-reward";
     showSparkyState("correct");
-    showSharedAlert({
+    if (typeof window.showRewardModal !== "function") showSharedAlert({
       mood: "success",
       emoji: "⚡",
       title: "Chispa recuperada",
@@ -175,7 +175,7 @@ function checkMathAnswer(answer) {
     });
     stopCamera();
 
-    window.setTimeout(() => {
+    openMathRewardModal(() => {
       currentMathQuestionIndex += 1;
 
       if (currentMathQuestionIndex >= mathQuestions.length) {
@@ -184,7 +184,7 @@ function checkMathAnswer(answer) {
       }
 
       renderMathQuestion();
-    }, 900);
+    });
     return;
   }
 
@@ -202,6 +202,20 @@ function checkMathAnswer(answer) {
 function getPositiveFeedback() {
   const messageIndex = currentMathQuestionIndex % positiveFeedbackMessages.length;
   return positiveFeedbackMessages[messageIndex];
+}
+
+function openMathRewardModal(onNext) {
+  if (typeof window.showRewardModal !== "function") {
+    onNext();
+    return;
+  }
+
+  window.showRewardModal({
+    title: "Chispa MatemÃ¡tica",
+    reward: "spark-math",
+    message: "Tu equipo acaba de recuperar una chispa del conocimiento.",
+    buttonLabel: currentMathQuestionIndex >= mathQuestions.length - 1 ? "Ver resultado final" : "Siguiente misiÃ³n"
+  }, onNext);
 }
 
 function completeMathChallenge() {

@@ -226,13 +226,13 @@
                   <strong>Desaf&iacute;o l&oacute;gico</strong>
                   <span>Acertijos para avanzar.</span>
                 </button>
-                <button class="mode-button mode-button-disabled" type="button" disabled>
+                <button id="openLanguageChallengeBtn" class="mode-button mode-button-secondary" type="button">
                   <span class="mode-art" aria-hidden="true">
                     <img src="src/assets/sparky/lengua.png" alt="" loading="lazy" />
                   </span>
-                  <span class="mode-label">Sendero en construcci&oacute;n</span>
-                  <strong>Desaf&iacute;o de lengua</strong>
-                  <span>Pr&oacute;ximamente: relatos, comprensi&oacute;n y pistas narrativas.</span>
+                  <span class="mode-label">Sendero de las palabras</span>
+                  <strong>Lengua y Literatura</strong>
+                  <span>Lectura, gram&aacute;tica y recursos literarios.</span>
                 </button>
               </div>
             </section>
@@ -291,6 +291,19 @@
                 </p>
               </div>
               <p id="mathFeedback" class="feedback"></p>
+            </section>
+
+            <section
+              id="languageChallenge"
+              class="card math-card hidden reveal-card"
+              data-level="LANG"
+            >
+              <div class="card-head">
+                <span class="card-tag">DESAFIO_LENGUA</span>
+                <span class="card-status" id="languageStatus">ACTIVO</span>
+              </div>
+              <div id="languageQuestionHost"></div>
+              <p id="languageFeedback" class="feedback"></p>
             </section>
 
             <section
@@ -782,6 +795,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <script type="module" src="src/components/visualAssets.js"></script>
     <script type="module" src="math-challenge.js"></script>
+    <script type="module" src="language-challenge.js"></script>
     <script src="logica.js"></script>
   </body>
 </html>
